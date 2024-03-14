@@ -17,6 +17,43 @@ type Object struct {
 	Data  []byte
 }
 
+// dfsForSlice 方法将遍历一个 Node 切片，并对每个 Node 调用 Add 方法
+func dfsForSlice(store KVStore, nodes []Node, h hash.Hash) ([][]byte, error) {
+	var hashes [][]byte
+	for _, node := range nodes {
+		hash, err := Add(store, node, h)
+		if err != nil {
+			return nil, err
+		}
+		hashes = append(hashes, hash)
+	}
+	return hashes, nil
+}
+
+// sliceFile 方法将一个 File 类型的 Node 切片，并返回一个 []byte 切片，每个元素都是文件的一部分
+func sliceFile(file File, size int) [][]byte {
+	data := file.Bytes()
+	var slices [][]byte
+	for i := 0; i < len(data); i += size {
+		end := i + size
+		if end > len(data) {
+			end = len(data)
+		}
+		slices = append(slices, data[i:end])
+	}
+	return slices
+}
+
+// sliceDirectory 方法将一个 Dir 类型的 Node 切片，并返回一个 Node 切片，每个元素都是目录中的一个文件或子目录
+func sliceDirectory(dir Dir) []Node {
+	var nodes []Node
+	it := dir.It()
+	for it.Next() {
+		nodes = append(nodes, it.Node())
+	}
+	return nodes
+}
+
 // Add 函数将 Node 中的数据保存在 KVStore 中，并计算出 Merkle Root
 func Add(store KVStore, node Node, h hash.Hash) ([]byte, error) {
 	var data []byte
