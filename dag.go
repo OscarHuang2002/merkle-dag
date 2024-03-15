@@ -51,7 +51,7 @@ func sliceDirectory(dir Dir) []Node {
 	for it.Next() {
 		nodes = append(nodes, it.Node())
 	}
-	return nodes
+	return nodes // 返回目录中的所有文件和子目录
 }
 
 // Add 函数将 Node 中的数据保存在 KVStore 中，并计算出 Merkle Root
